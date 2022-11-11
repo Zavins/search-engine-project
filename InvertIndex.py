@@ -9,12 +9,11 @@ from collections import defaultdict
 from sys import getsizeof
 from Post import Post
 
-
 index = SimhashIndex([], k=3)
 f_result = defaultdict(list)
 id_result = {}
-count=0
-path=[]
+count = 0
+path = []
 
 
 def get_json_result(path):
@@ -63,7 +62,7 @@ def save_data(tf_dict, id):
         return
     global count
     count += 1
-    for key,val in tf_dict.items():
+    for key, val in tf_dict.items():
         f_result[key].append(Post(id, val))
 
 
@@ -72,7 +71,7 @@ def simhash_result(path_list):
     num = 1
     for paths in path_list:
         print(f" {num} sim: {paths}")
-        num+=1
+        num += 1
         text = get_json_result(paths)
         sim_value = Simhash(text)
         if len((index.get_near_dups(sim_value))) < 1:
@@ -81,21 +80,22 @@ def simhash_result(path_list):
 
 
 def binary_convert(m):
-    return round(m/1024,2)
+    return round(m / 1024, 2)
+
 
 if __name__ == '__main__':
     dic = "DEV/flamingo_ics_uci_edu"
     files = get_path(dic)
     simhash_result(files)
-    for id,web in enumerate(path):
+    for id, web in enumerate(path):
         # print(f" {i} main: {web}")
         content = get_json_result(web)
         tokens = word_token(content)
         tf_idf = cal_tf(tokens)
-        save_data(tf_idf,id)
+        save_data(tf_idf, id)
     print("Token number:", len(f_result.keys()))
     print(f"Total inverted url: {count}")
-    m=getsizeof(f_result)
-    print("the total size of index: ",binary_convert(m))
+    m = getsizeof(f_result)
+    print("the total size of index: ", binary_convert(m))
     with open("test.json", mode='w') as f:
-        f.write(json.dumps(f_result,indent=4))
+        f.write(json.dumps(f_result, indent=4))
