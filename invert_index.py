@@ -16,7 +16,7 @@ def process_content(content):
     soup = BeautifulSoup(content, "html.parser")
     content = soup.get_text()
     tokens:list[str] = TokenHelper.tokenize(content)
-    important_content = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'b', 'a'], text=True)
+    important_content = soup.find_all(['h1', 'h2', 'h3', 'b', 'a', 'title'], text=True)
     #add weights for important contents.
     for c in important_content:
         tokens.extend(TokenHelper.tokenize(c.string))

@@ -1,5 +1,6 @@
 import json
 from os import walk, stat
+from nltk.tokenize import word_tokenize
 from nltk.stem.porter import PorterStemmer
 
 class FileHelper:
@@ -40,21 +41,10 @@ class FileHelper:
 class TokenHelper:
     @staticmethod
     def tokenize(text: str):
-        stemmer = PorterStemmer()
-        tokens = []
-        token = ""
-        #Read character by character
-        for s in text:
-            if s.isalnum():
-                token += s.lower()
-            else:
-                if len(token) > 0:
-                    tokens.append(stemmer.stem(token))
-                    token = ""
-            #Add the last token
-        if len(token) > 0:
-            tokens.append(stemmer.stem(token))
-        return tokens
+        porter = PorterStemmer()
+        word = word_tokenize(text)
+        temp = [i.lower() for i in word if i.isalnum()]
+        return [porter.stem(w) for w in temp]
 
     @staticmethod
     def computeWordFrequencies(tokens):
