@@ -56,17 +56,3 @@ class TokenHelper:
         print(word)
         temp = [i.lower() for i in word if i.isalnum() and re.match(r'^[a-zA-Z0-9]+$', i)]
         return [porter.stem(w) for w in temp]
-
-    @staticmethod
-    def computeWordFrequencies(tokens):
-        token_freq = dict()
-        #Convert list to dict.
-        for token in tokens:
-            token_freq[token] = token_freq[token] + 1 if token in token_freq else 1
-        return token_freq
-
-    @staticmethod
-    def printFrequencies(frequencies) -> None:
-        frequencies = dict(sorted(frequencies.items(), key=lambda item: -item[1]))
-        for token, freq in frequencies.items():
-            print(f"{token} - {freq}")
