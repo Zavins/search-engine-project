@@ -35,13 +35,8 @@ def get_input():
             break
         result = []
         tokens = TokenHelper.tokenize(query)
-        print(tokens)
-        for i in range(len(tokens)):
-            if i == 0:
-                result = get_all_postings(tokens[i])
-            else:
-                result = intersect_doc_list(result, get_all_postings(tokens[i]))
-        
+        for i,token in enumerate(tokens):
+            result = get_all_postings(token) if i == 0 else intersect_doc_list(result, get_all_postings(token))
         result.sort(key=lambda x: x.tfs, reverse=True)
         for r in result:
             print(url_dict[str(r.doc_id)])
