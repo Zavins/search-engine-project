@@ -21,13 +21,10 @@ def intersect_doc_list(list1, list2):
             result.append(Posting(list1[i].doc_id, list1[i].tfs *list2[j].tfs ))
             i += 1
             j += 1
-            continue
-        if list1[i].doc_id < list2[j].doc_id:
+        elif list1[i].doc_id < list2[j].doc_id:
             i += 1
-            continue
-        if list1[i].doc_id > list2[j].doc_id:
+        elif list1[i].doc_id > list2[j].doc_id:
             j += 1
-            continue
     return result
 
 
@@ -45,7 +42,7 @@ def get_input():
             else:
                 result = intersect_doc_list(result, get_all_postings(tokens[i]))
         
-        result.sort(key = lambda x: x.tfs)
+        result.sort(key=lambda x: x.tfs, reverse=True)
         for r in result:
             print(url_dict[str(r.doc_id)])
             
