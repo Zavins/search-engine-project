@@ -5,6 +5,7 @@ from simhash import Simhash, SimhashIndex
 from collections import defaultdict
 from utils import FileHelper, TokenHelper
 from posting import Posting
+import os
 
 simhash_index = SimhashIndex([], k=3)
 inverted_index_dict = defaultdict(list)
@@ -19,6 +20,7 @@ def process_content(content):
     important_content = soup.find_all(['h1', 'h2', 'h3', 'b', 'a', 'title'], text=True)
     #add weights for important contents.
     for c in important_content:
+        print(c.string)
         tokens.extend(TokenHelper.tokenize(c.string))
     return tokens
 
@@ -53,17 +55,31 @@ def create_indexes(folder_path):
             tf_idf = cal_tf(tokens)
 
             url_count += 1
-            doc_id_dict[url_count] = doc_id
+            doc_id_dict[url_count] = url
             add_to_dict(tf_idf, url_count)
 
+def save_indexes(file_path):
+    index_dict = {}
+    i = 0
+    for k, v in inverted_index_dict.items():
+        index_dict[k] = i
+        v.sort(key=lambda x: x.doc_id)
+        with open(file_path, "a") as f:
+            f.write(str(v)+"\n")
+        i += 1
+    FileHelper.save_json("./indexes.json", index_dict)
 
-def generate_output(file_path):
+def generate_output():
     print("Token number:", len(inverted_index_dict.keys()))
     print(f"Total inverted url: {url_count}")
-    print("the total size of index: ", FileHelper.save_json(file_path, inverted_index_dict))
+    
 
 
 if __name__ == '__main__':
+    result_path = "./result.txt"
+    if os.path.exists(result_path):
+        os.remove(result_path)
     create_indexes("./developer/DEV")
-    generate_output("./result.json")
+    generate_output()
+    save_indexes(result_path)
     FileHelper.save_json("./doc_id.json", doc_id_dict)
