@@ -18,7 +18,7 @@ def intersect_doc_list(list1, list2):
     result = []
     while i < len(list1) and j < len(list2):
         if list1[i].doc_id == list2[j].doc_id:
-            result.append(Posting(list1[i].doc_id, list1[i].tfs *list2[j].tfs ))
+            result.append(Posting(list1[i].doc_id, list1[i].tfs+list2[j].tfs ))
             i += 1
             j += 1
         elif list1[i].doc_id < list2[j].doc_id:

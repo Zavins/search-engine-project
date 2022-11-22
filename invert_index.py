@@ -19,7 +19,6 @@ def process_content(content):
     important_content = soup.find_all(['h1', 'h2', 'h3', 'b', 'a', 'title'], text=True)
     # add weights for important contents.
     for c in important_content:
-        print(c.string)
         tokens.extend(TokenHelper.tokenize(c.string))
     return tokens
 

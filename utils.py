@@ -53,6 +53,5 @@ class TokenHelper:
     def tokenize(text: str):
         porter = PorterStemmer()
         word = word_tokenize(text)
-        print(word)
         temp = [i.lower() for i in word if i.isalnum() and re.match(r'^[a-zA-Z0-9]+$', i)]
         return [porter.stem(w) for w in temp]
