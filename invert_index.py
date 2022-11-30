@@ -5,6 +5,7 @@ from collections import defaultdict
 from utils import FileHelper, TokenHelper
 from posting import Posting
 import os
+from math import log
 
 simhash_index = SimhashIndex([], k=3)
 inverted_index_dict = defaultdict(list)
@@ -36,7 +37,7 @@ def add_to_dict(tf_dict, id):
     if len(tf_dict) == 0:
         return
     for key, val in tf_dict.items():
-        inverted_index_dict[key].append(Posting(id, val))
+        inverted_index_dict[key].append(Posting(id, (1+log(val) if val > 0 else 0)))
 
 
 def create_indexes(folder_path):
@@ -78,7 +79,7 @@ if __name__ == '__main__':
     result_path = "./result.txt"
     if os.path.exists(result_path):
         os.remove(result_path)
-    create_indexes("./developer/DEV")
+    create_indexes("ANALYST")
     generate_output()
     save_indexes(result_path)
     FileHelper.save_json("./doc_id.json", doc_id_dict)

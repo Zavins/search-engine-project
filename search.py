@@ -1,6 +1,8 @@
+from math import log
+
 from utils import FileHelper, TokenHelper
 from posting import Posting
-
+import invert_index
 
 url_dict = dict()
 index_dict = dict()
@@ -18,7 +20,9 @@ def intersect_doc_list(list1, list2):
     result = []
     while i < len(list1) and j < len(list2):
         if list1[i].doc_id == list2[j].doc_id:
-            result.append(Posting(list1[i].doc_id, list1[i].tfs+list2[j].tfs ))
+            loglist1 = log(url_dict/len(list1))
+            loglist2 = log(url_dict/len(list2))
+            result.append(Posting(list1[i].doc_id, list1[i].tfs*loglist1+list2[j].tfs*loglist2))
             i += 1
             j += 1
         elif list1[i].doc_id < list2[j].doc_id:
