@@ -6,6 +6,7 @@ import invert_index
 
 url_dict = dict()
 index_dict = dict()
+total = len(url_dict.keys())
 
 def get_all_postings(word):
     line_num = index_dict.get(word, None)
@@ -20,9 +21,9 @@ def intersect_doc_list(list1, list2):
     result = []
     while i < len(list1) and j < len(list2):
         if list1[i].doc_id == list2[j].doc_id:
-            loglist1 = log(url_dict/len(list1))
-            loglist2 = log(url_dict/len(list2))
-            result.append(Posting(list1[i].doc_id, list1[i].tfs*loglist1+list2[j].tfs*loglist2))
+            idf1 = log(total/len(list1))
+            idf2 = log(total/len(list2))
+            result.append(Posting(list1[i].doc_id, list1[i].tfs*idf1+list2[j].tfs*idf2))
             i += 1
             j += 1
         elif list1[i].doc_id < list2[j].doc_id:
