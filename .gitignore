@@ -154,6 +154,7 @@ cython_debug/
 developer/
 DEV/
 analyst/
-result.txt
 indexes.json
 doc_id.json
+partial/
+merged.txt
