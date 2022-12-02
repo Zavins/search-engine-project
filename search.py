@@ -8,7 +8,7 @@ from functools import lru_cache
 url_dict = dict()
 index_dict = dict()
 file_cache = dict()
-total = len(url_dict.keys())
+total = 0
 
 
 @lru_cache(maxsize=256)
@@ -25,6 +25,7 @@ def intersect_doc_list(list1, list2):
     i = 0
     j = 0
     result = []
+    global total
     while i < len(list1) and j < len(list2):
         if list1[i].doc_id == list2[j].doc_id:
             idf1 = log(total/len(list1))
@@ -55,13 +56,15 @@ def get_result(query):
         time = str(datetime.now() - start)
         print("Time Used: ", time)
         return urls, time
-    except:
-        return (["Error occurred when querying the result"])
+    except Exception as e:
+        print(e)
+        return (["Error occurred when querying the result"], 0)
 
 def load():
-    global url_dict, index_dict
+    global url_dict, index_dict, total
     url_dict = FileHelper.load_json("doc_id.json")
     index_dict = FileHelper.load_json("index_table.json")
+    total = len(url_dict.keys())
 
 def unload():
     for v in file_cache.values():

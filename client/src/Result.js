@@ -1,11 +1,11 @@
-import { List, ListItem, ListItemAvatar, Avatar, ListItemText, Typography, Divider, Card, Paper, Container, ListItemButton, CircularProgress, Alert, Link } from "@mui/material"
+import { List, ListItem, Typography, Paper, Container, ListItemButton, CircularProgress, Alert, Link, Box, Button, FormControl, FormHelperText, Input, InputLabel } from "@mui/material"
 import axios from "axios"
-import React from "react"
 import { useQuery } from "react-query"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 
 const Result = () => {
     let { query } = useParams()
+    const navigate = useNavigate()
 
     let { isLoading: loading, error: error, data: data, } = useQuery(
         ["get-result", query],
@@ -18,7 +18,15 @@ const Result = () => {
         }
     )
 
-    console.log(data)
+    const handleSubmit = (e) => {
+        e && e.preventDefault();
+        if (e.target.query.value === "") {
+            alert("Please entre your query to continue")
+        }
+        else {
+            navigate(`/search/${e.target.query.value}`)
+        }
+    }
 
     return (
         <Container sx={{ height: "100%", width: "100%", display: "flex", justifyContent: "center" }}>
@@ -30,6 +38,23 @@ const Result = () => {
                 ) : (
                     <>
                         <List component={Paper} sx={{ width: '100%', my: "1rem" }}>
+                            <Box
+                                component="form"
+                                onSubmit={handleSubmit}
+                                noValidate
+                                autoComplete="off"
+                                display="flex"
+                                alignItems="center"
+                            >
+                                <FormControl>
+                                    <InputLabel>Search Query:</InputLabel>
+                                    <Input name="query" aria-describedby="help-text" />
+                                    <FormHelperText id="help-text">Please Input Your Query</FormHelperText>
+                                </FormControl>
+                                <FormControl>
+                                    <Button sx={{ ml: "1rem" }} type="submit" variant="contained">GO</Button>
+                                </FormControl>
+                            </Box>
                             {
                                 data[0].map((url) => (
                                     <ListItem alignItems="flex-start" style={{ width: "100%" }}>
