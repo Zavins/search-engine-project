@@ -2,18 +2,24 @@ from math import log
 
 from utils import FileHelper, TokenHelper
 from posting import Posting
-import invert_index
+from datetime import datetime
+from functools import lru_cache
 
 url_dict = dict()
 index_dict = dict()
+file_cache = dict()
 total = len(url_dict.keys())
 
+
+@lru_cache(maxsize=256)
 def get_all_postings(word):
-    line_num = index_dict.get(word, None)
-    if line_num:
-        return FileHelper.get_obj_by_line_num("result.txt", line_num)
-    else:
-        return []
+    file, pos, length = index_dict.get(word, (None, None, None))
+    if file and pos and length:
+        if file_cache.get(file, None) == None:
+            file_cache[file] = open(f"{file}.txt")
+        return FileHelper.get_obj_by_position(file_cache[file], pos, length)
+    return []
+
 
 def intersect_doc_list(list1, list2):
     i = 0
@@ -33,22 +39,46 @@ def intersect_doc_list(list1, list2):
     return result
 
 
+def get_result(query):
+    try:
+        start = datetime.now()
+        result = []
+        tokens = TokenHelper.tokenize(query)
+        for i, token in enumerate(tokens):
+            if i == 0:
+                result = get_all_postings(token)
+            else:
+                if len(result) == 0:
+                    break
+                result = intersect_doc_list(result, get_all_postings(token))
+        urls = [url_dict[str(r.doc_id)] for r in sorted(result, key=lambda x: x.tfs, reverse=True)]
+        time = str(datetime.now() - start)
+        print("Time Used: ", time)
+        return urls, time
+    except:
+        return (["Error occurred when querying the result"])
+
+def load():
+    global url_dict, index_dict
+    url_dict = FileHelper.load_json("doc_id.json")
+    index_dict = FileHelper.load_json("index_table.json")
+
+def unload():
+    for v in file_cache.values():
+        v.close()
+
+
 def get_input():
+    global file_cache
     while True:
         query = input("Enter query: ").lower()
         if query == "quit":
             break
-        result = []
-        tokens = TokenHelper.tokenize(query)
-        for i,token in enumerate(tokens):
-            result = get_all_postings(token) if i == 0 else intersect_doc_list(result, get_all_postings(token))
-        result.sort(key=lambda x: x.tfs, reverse=True)
-        for r in result:
-            print(url_dict[str(r.doc_id)])
-            
-            
+        for r in get_result(query):
+            print(r)
+    unload()
+
 
 if __name__ == '__main__':
-    url_dict = FileHelper.load_json("doc_id.json")
-    index_dict = FileHelper.load_json("indexes.json")
+    load()
     get_input()

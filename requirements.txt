@@ -1,0 +1,3 @@
+simhash
+fastapi
+uvicorn

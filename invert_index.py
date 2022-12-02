@@ -9,8 +9,14 @@ from math import log
 
 simhash_index = SimhashIndex([], k=3)
 inverted_index_dict = defaultdict(list)
+index_table = defaultdict(list) #token: [("filename", lineNumber), ("filename", lineNumber)]
 doc_id_dict = defaultdict(str)
 url_count = 0
+THREADSHOLD = 100000
+PARTIAL_DIR = "./partial/"
+PARTIAL_INDEX_NAME = "partial"
+MERGED_INDEX_NAME="merged"
+file_count = 1
 
 
 def process_content(content):
@@ -34,11 +40,15 @@ def cal_tf(result):
 
 
 def add_to_dict(tf_dict, id):
+    global file_count
     if len(tf_dict) == 0:
         return
     for key, val in tf_dict.items():
         inverted_index_dict[key].append(Posting(id, (1+log(val) if val > 0 else 0)))
-
+    if len(inverted_index_dict.keys()) >= THREADSHOLD:
+        write_indexes(f'{PARTIAL_DIR}{PARTIAL_INDEX_NAME}{file_count}.txt')
+        file_count += 1
+    
 
 def create_indexes(folder_path):
     global url_count
@@ -52,34 +62,54 @@ def create_indexes(folder_path):
             print(url_count, url)
             simhash_index.add(doc_id, hash)
             tf_idf = cal_tf(tokens)
-
             url_count += 1
             doc_id_dict[url_count] = url
             add_to_dict(tf_idf, url_count)
 
 
-def save_indexes(file_path):
-    index_dict = {}
-    i = 1
+def write_indexes(file_path):
+    i = 0
     for k, v in inverted_index_dict.items():
-        index_dict[k] = i
-        v.sort(key=lambda x: x.doc_id)
         with open(file_path, "a") as f:
-            f.write(str(v) + "\n")
-        i += 1
-    FileHelper.save_json("./indexes.json", index_dict)
+            length = FileHelper.write_obj(f, v)
+        index_table[k].append([file_path, i, length])
+        i += length
+    inverted_index_dict.clear()
 
+
+def merge_partial_indexes():
+    i = 0
+    with open(f"./{MERGED_INDEX_NAME}.txt", "a") as mf:
+        for token, location in index_table.items():
+            posts = []
+            for filename, position, length in location:
+                with open(f"{filename}") as f:
+                    posts.extend(FileHelper.get_obj_by_position(f, position, length))
+            posts.sort(key=lambda x: x.doc_id)
+            length = FileHelper.write_obj(mf, posts)
+            index_table[token] = [MERGED_INDEX_NAME, i, length]
+            i += length
 
 def generate_output():
-    print("Token number:", len(inverted_index_dict.keys()))
+    print("Token number:", len(index_table.keys()))
     print(f"Total inverted url: {url_count}")
 
 
+def initialize():
+    if os.path.exists(PARTIAL_DIR):
+        for file in os.scandir(PARTIAL_DIR):
+            os.remove(file)
+    else:
+        os.mkdir("./partial/")
+
+    if os.path.exists(f"./{MERGED_INDEX_NAME}.txt"):
+        os.remove(f"./{MERGED_INDEX_NAME}.txt")
+
 if __name__ == '__main__':
-    result_path = "./result.txt"
-    if os.path.exists(result_path):
-        os.remove(result_path)
-    create_indexes("ANALYST")
-    generate_output()
-    save_indexes(result_path)
+    initialize()
+    create_indexes("./developer/DEV")
+    write_indexes(f'{PARTIAL_DIR}{PARTIAL_INDEX_NAME}{file_count}.txt')
+    merge_partial_indexes()
+    FileHelper.save_json("./index_table.json", index_table)
     FileHelper.save_json("./doc_id.json", doc_id_dict)
+    generate_output()
