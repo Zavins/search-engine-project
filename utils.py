@@ -4,7 +4,6 @@ import re
 from nltk.tokenize import word_tokenize
 from nltk.stem.porter import PorterStemmer
 from posting import Posting
-import linecache
 
 class FileHelper:
     @staticmethod
@@ -43,10 +42,18 @@ class FileHelper:
         return FileHelper.get_file_size(path)
 
     @staticmethod
-    def get_obj_by_line_num(path, num):
-        with open(path, mode='r') as f:
-            data = linecache.getline(path, num)
+    def get_obj_by_position(f, pos, length):
+        data=[]
+        f.seek(pos)
+        data = f.read(length)
         return eval(data)
+
+    @staticmethod
+    def write_obj(f, obj):
+        obj_str = str(obj)
+        length = len(obj_str)
+        f.write(obj_str)
+        return length
 
 class TokenHelper:
     @staticmethod
