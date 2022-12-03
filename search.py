@@ -55,7 +55,7 @@ def get_result(query):
         urls = [url_dict[str(r.doc_id)] for r in sorted(result, key=lambda x: x.tfs, reverse=True)]
         time = str(datetime.now() - start)
         print("Time Used: ", time)
-        return urls, time
+        return urls[:60], time
     except Exception as e:
         print(e)
         return (["Error occurred when querying the result"], 0)
