@@ -17,7 +17,10 @@ def get_all_postings(word):
     if file and pos and length:
         if file_cache.get(file, None) == None:
             file_cache[file] = open(f"{file}.txt")
-        return FileHelper.get_obj_by_position(file_cache[file], pos, length)
+        postings = FileHelper.get_obj_by_position(file_cache[file], pos, length)
+        for p in postings:
+            p.tfs *= log(total/len(postings))
+        return postings
     return []
 
 
@@ -28,9 +31,7 @@ def intersect_doc_list(list1, list2):
     global total
     while i < len(list1) and j < len(list2):
         if list1[i].doc_id == list2[j].doc_id:
-            idf1 = log(total/len(list1))
-            idf2 = log(total/len(list2))
-            result.append(Posting(list1[i].doc_id, list1[i].tfs*idf1+list2[j].tfs*idf2))
+            result.append(Posting(list1[i].doc_id, list1[i].tfs+list2[j].tfs))
             i += 1
             j += 1
         elif list1[i].doc_id < list2[j].doc_id:
@@ -55,7 +56,7 @@ def get_result(query):
         urls = [url_dict[str(r.doc_id)] for r in sorted(result, key=lambda x: x.tfs, reverse=True)]
         time = str(datetime.now() - start)
         print("Time Used: ", time)
-        return urls, time
+        return urls[:60], time
     except Exception as e:
         print(e)
         return (["Error occurred when querying the result"], 0)
