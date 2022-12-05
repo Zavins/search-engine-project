@@ -67,7 +67,7 @@ const Result = () => {
                                 ))
                             }
                         </List>
-                        {data[1]}
+                        Time Used: {data[1]}
                     </>
                 )
             }
