@@ -1,9 +1,12 @@
 import json
 from os import walk, stat
+import nltk
 import re
 from nltk.tokenize import word_tokenize
 from nltk.stem.porter import PorterStemmer
 from posting import Posting
+
+nltk.download('punkt')
 
 class FileHelper:
     @staticmethod
